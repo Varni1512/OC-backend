@@ -3,7 +3,7 @@ const { generateFile } = require("./generateFile");
 const { executeCode } = require("./executeCode");
 const { generateInputFile } = require("./generateInputFile");
 const cors = require("cors");
-const { aiCodeReview } = require("./aiCodeReview");
+const { aiCodeReview, getComplexityAnalysis } = require("./aiCodeReview");
 
 const app = express();
 
@@ -26,7 +26,15 @@ app.post("/run", async (req, res) => {
     const filepath = generateFile(language, code);
     const inputFilePath = generateInputFile(input);
     const output = await executeCode(filepath, inputFilePath, language);
-    res.json({ filepath, output });
+    
+    // Get complexity analysis
+    const complexity = await getComplexityAnalysis(code);
+    
+    res.json({ 
+      filepath, 
+      output, 
+      complexity 
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.error || "Execution failed" });
   }
